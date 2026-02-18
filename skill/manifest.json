@@ -1,0 +1,27 @@
+{
+  "name": "lifeos-core",
+  "version": "0.1.0",
+  "description": "Open-source AI life organization system for OpenClaw",
+  "author": "LifeOS Community",
+  "license": "MIT",
+  "homepage": "https://github.com/lifeos/core",
+  "repository": "https://github.com/lifeos/core",
+  "requires": {
+    "openclaw": ">=2026.2.0"
+  },
+  "provides": {
+    "commands": [
+      "lifeos analyze",
+      "lifeos organize",
+      "lifeos dashboard",
+      "lifeos status",
+      "lifeos projects",
+      "lifeos memories"
+    ]
+  },
+  "config": {
+    "consentRequired": true,
+    "backupBeforeChanges": true,
+    "dryRunByDefault": true
+  }
+}
