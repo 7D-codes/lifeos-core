@@ -8,7 +8,7 @@ interface DashboardState {
   timeBlocks: TimeBlock[];
   
   // UI State
-  selectedView: 'today' | 'kanban' | 'projects' | 'calendar' | 'memory';
+  selectedView: 'today' | 'kanban' | 'projects' | 'calendar' | 'memory' | 'quick';
   sidebarOpen: boolean;
   
   // Actions

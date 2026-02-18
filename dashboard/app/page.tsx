@@ -1,27 +1,39 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDashboardStore } from '@/store/dashboard';
 import { Sidebar } from '@/components/sidebar';
 import { TodayView } from '@/components/today-view';
-import { getAllTasks, getProjects, getDailyNotes } from '@/lib/parser';
+import { Task, Project } from '@/types';
 
 export default function Dashboard() {
   const { selectedView, setTasks, setProjects } = useDashboardStore();
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    // Load initial data
-    try {
-      const tasks = getAllTasks();
-      const projects = getProjects();
-      setTasks(tasks);
-      setProjects(projects);
-    } catch (error) {
-      console.error('Failed to load data:', error);
-    }
+    // Load data from API
+    fetch('/api/data')
+      .then(res => res.json())
+      .then((data: { tasks: Task[]; projects: Project[] }) => {
+        setTasks(data.tasks);
+        setProjects(data.projects);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error('Failed to load data:', error);
+        setIsLoading(false);
+      });
   }, [setTasks, setProjects]);
   
   const renderView = () => {
+    if (isLoading) {
+      return (
+        <div className="p-6 flex items-center justify-center h-full">
+          <div className="text-muted-foreground">Loading...</div>
+        </div>
+      );
+    }
+    
     switch (selectedView) {
       case 'today':
         return <TodayView />;

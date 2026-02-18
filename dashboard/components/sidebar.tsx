@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   Home,
-  LayoutKanban,
+  Kanban,
   FolderKanban,
   Calendar,
   Search,
@@ -17,7 +17,7 @@ import {
 
 const navItems = [
   { id: 'today', label: 'Today', icon: Home, shortcut: '⌘1' },
-  { id: 'kanban', label: 'Kanban', icon: LayoutKanban, shortcut: '⌘2' },
+  { id: 'kanban', label: 'Kanban', icon: Kanban, shortcut: '⌘2' },
   { id: 'projects', label: 'Projects', icon: FolderKanban, shortcut: '⌘3' },
   { id: 'calendar', label: 'Calendar', icon: Calendar, shortcut: '⌘4' },
   { id: 'memory', label: 'Memory', icon: Search, shortcut: '⌘5' },
