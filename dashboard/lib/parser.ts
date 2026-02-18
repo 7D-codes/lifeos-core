@@ -3,7 +3,7 @@ import path from 'path';
 import matter from 'gray-matter';
 import { Task, Project, ParsedDocument, TimeBlock } from '@/types';
 
-const WORKSPACE_PATH = process.env.WORKSPACE_PATH || '/data';
+const WORKSPACE_PATH = process.env.WORKSPACE_PATH || '/Users/mac/.openclaw/workspace';
 
 export function parseMarkdown(filePath: string): ParsedDocument {
   const raw = fs.readFileSync(filePath, 'utf-8');
