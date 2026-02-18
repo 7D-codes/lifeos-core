@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  dashboard:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - WORKSPACE_PATH=/data
+    volumes:
+      # Mount your OpenClaw workspace here
+      - ${OPENCLAW_WORKSPACE:-~/.openclaw/workspace}:/data:ro
+    restart: unless-stopped
