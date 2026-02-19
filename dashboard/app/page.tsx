@@ -1,52 +1,56 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useDashboardStore } from '@/store/dashboard';
+import { useEffect } from 'react';
+import { useDashboardStore, initializeDashboard } from '@/store/dashboard';
 import { Sidebar } from '@/components/sidebar';
 import { TodayView } from '@/components/today-view';
-import { Task, Project } from '@/types';
 
 export default function Dashboard() {
-  const { selectedView, setTasks, setProjects } = useDashboardStore();
-  const [isLoading, setIsLoading] = useState(true);
+  const { selectedView } = useDashboardStore();
   
   useEffect(() => {
-    // Load data from API
-    fetch('/api/data')
-      .then(res => res.json())
-      .then((data: { tasks: Task[]; projects: Project[] }) => {
-        setTasks(data.tasks);
-        setProjects(data.projects);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        console.error('Failed to load data:', error);
-        setIsLoading(false);
-      });
-  }, [setTasks, setProjects]);
+    initializeDashboard();
+  }, []);
   
   const renderView = () => {
-    if (isLoading) {
-      return (
-        <div className="p-6 flex items-center justify-center h-full">
-          <div className="text-muted-foreground">Loading...</div>
-        </div>
-      );
-    }
-    
     switch (selectedView) {
       case 'today':
         return <TodayView />;
       case 'kanban':
-        return <div className="p-6">Kanban view (coming soon)</div>;
+        return (
+          <div className="p-6">
+            <h1 className="text-2xl font-bold mb-4">Kanban Board</h1>
+            <p className="text-muted-foreground">Coming soon — drag & drop task management</p>
+          </div>
+        );
       case 'projects':
-        return <div className="p-6">Projects view (coming soon)</div>;
+        return (
+          <div className="p-6">
+            <h1 className="text-2xl font-bold mb-4">Projects</h1>
+            <p className="text-muted-foreground">Coming soon — project & milestone overview</p>
+          </div>
+        );
       case 'calendar':
-        return <div className="p-6">Calendar view (coming soon)</div>;
+        return (
+          <div className="p-6">
+            <h1 className="text-2xl font-bold mb-4">Calendar</h1>
+            <p className="text-muted-foreground">Coming soon — time blocking & scheduling</p>
+          </div>
+        );
       case 'memory':
-        return <div className="p-6">Memory search (coming soon)</div>;
+        return (
+          <div className="p-6">
+            <h1 className="text-2xl font-bold mb-4">Memory Search</h1>
+            <p className="text-muted-foreground">Coming soon — search across all notes & facts</p>
+          </div>
+        );
       case 'quick':
-        return <div className="p-6">Quick capture (coming soon)</div>;
+        return (
+          <div className="p-6">
+            <h1 className="text-2xl font-bold mb-4">Quick Capture</h1>
+            <p className="text-muted-foreground">Coming soon — rapid task & note entry</p>
+          </div>
+        );
       default:
         return <TodayView />;
     }

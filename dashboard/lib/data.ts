@@ -1,3 +1,5 @@
+'use server';
+
 import fs from 'fs';
 import path from 'path';
 import {
@@ -5,7 +7,6 @@ import {
   Project,
   Fact,
   GraphData,
-  DailyNote,
   Milestone,
 } from '@/types';
 
@@ -50,7 +51,7 @@ function listDirs(dir: string): string[] {
 
 // ===== TASKS =====
 
-export function getAllTasks(): Task[] {
+export async function getAllTasks(): Promise<Task[]> {
   const tasksDir = path.join(WORKSPACE_PATH, 'tasks');
   const files = listFiles(tasksDir, '.json');
   
@@ -65,68 +66,53 @@ export function getAllTasks(): Task[] {
   );
 }
 
-export function getTaskById(id: string): Task | null {
+export async function getTaskById(id: string): Promise<Task | null> {
   const taskPath = path.join(WORKSPACE_PATH, 'tasks', `${id}.json`);
   return readJSON<Task>(taskPath);
 }
 
-export function getTasksByProject(projectId: string): Task[] {
-  return getAllTasks().filter(t => 
-    t.projectRef === `projects/${projectId}`
-  );
+export async function getTasksByProject(projectId: string): Promise<Task[]> {
+  const allTasks = await getAllTasks();
+  return allTasks.filter(t => t.projectRef === `projects/${projectId}`);
 }
 
-export function getTasksByMilestone(projectId: string, milestoneId: string): Task[] {
-  return getAllTasks().filter(t => 
+export async function getTasksByMilestone(projectId: string, milestoneId: string): Promise<Task[]> {
+  const allTasks = await getAllTasks();
+  return allTasks.filter(t => 
     t.projectRef === `projects/${projectId}` && 
     t.milestoneRef === milestoneId
   );
 }
 
-export function getTasksByStatus(status: Task['status']): Task[] {
-  return getAllTasks().filter(t => t.status === status);
-}
-
-export function getTasksByPriority(priority: Task['priority']): Task[] {
-  return getAllTasks().filter(t => t.priority === priority);
-}
-
-export function getOverdueTasks(): Task[] {
+export async function getOverdueTasks(): Promise<Task[]> {
+  const allTasks = await getAllTasks();
   const today = new Date().toISOString().split('T')[0];
-  return getAllTasks().filter(t => 
+  return allTasks.filter(t => 
     t.dueDate && 
     t.dueDate < today && 
     t.status !== 'done'
   );
 }
 
-export function getTasksDueToday(): Task[] {
+export async function getTasksDueToday(): Promise<Task[]> {
+  const allTasks = await getAllTasks();
   const today = new Date().toISOString().split('T')[0];
-  return getAllTasks().filter(t => t.dueDate === today);
-}
-
-export function getTasksAssignedTo(agentId: string): Task[] {
-  return getAllTasks().filter(t => t.assignedTo === agentId);
-}
-
-export function getUnassignedTasks(): Task[] {
-  return getAllTasks().filter(t => !t.assignedTo);
+  return allTasks.filter(t => t.dueDate === today);
 }
 
 // ===== PROJECTS =====
 
-export function getAllProjects(): Project[] {
+export async function getAllProjects(): Promise<Project[]> {
   const projectsDir = path.join(WORKSPACE_PATH, 'life', 'areas', 'projects');
   const projectDirs = listDirs(projectsDir);
   
   const projects: Project[] = [];
   for (const dir of projectDirs) {
-    const project = getProjectById(dir);
+    const project = await getProjectById(dir);
     if (project) projects.push(project);
   }
   
   return projects.sort((a, b) => {
-    // Sort by priority first, then by updatedAt
     const priorityOrder = { high: 0, medium: 1, low: 2 };
     if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
       return priorityOrder[a.priority] - priorityOrder[b.priority];
@@ -135,13 +121,12 @@ export function getAllProjects(): Project[] {
   });
 }
 
-export function getProjectById(id: string): Project | null {
+export async function getProjectById(id: string): Promise<Project | null> {
   const metaPath = path.join(WORKSPACE_PATH, 'life', 'areas', 'projects', id, 'meta.json');
   const meta = readJSON<Project>(metaPath);
   
   if (!meta) return null;
   
-  // Read summary if exists
   const summaryPath = path.join(WORKSPACE_PATH, 'life', 'areas', 'projects', id, 'summary.md');
   let summary: string | undefined;
   try {
@@ -157,22 +142,19 @@ export function getProjectById(id: string): Project | null {
   };
 }
 
-export function getActiveProjects(): Project[] {
-  return getAllProjects().filter(p => p.status === 'active');
+export async function getActiveProjects(): Promise<Project[]> {
+  const allProjects = await getAllProjects();
+  return allProjects.filter(p => p.status === 'active');
 }
 
-export function getArchivedProjects(): Project[] {
-  return getAllProjects().filter(p => p.status === 'archived');
-}
-
-export function getProjectProgress(project: Project): {
+export async function getProjectProgress(project: Project): Promise<{
   total: number;
   completed: number;
   inProgress: number;
   todo: number;
   percentage: number;
-} {
-  const tasks = getTasksByProject(project.id);
+}> {
+  const tasks = await getTasksByProject(project.id);
   const completed = tasks.filter(t => t.status === 'done').length;
   const inProgress = tasks.filter(t => t.status === 'in_progress').length;
   const todo = tasks.filter(t => t.status === 'todo').length;
@@ -187,12 +169,15 @@ export function getProjectProgress(project: Project): {
   };
 }
 
-export function getMilestoneProgress(milestone: Milestone): {
+export async function getMilestoneProgress(milestone: Milestone): Promise<{
   total: number;
   completed: number;
   percentage: number;
-} {
-  const tasks = milestone.tasks.map(id => getTaskById(id)).filter(Boolean) as Task[];
+}> {
+  const tasks = (await Promise.all(
+    milestone.tasks.map(id => getTaskById(id))
+  )).filter(Boolean) as Task[];
+  
   const completed = tasks.filter(t => t.status === 'done').length;
   
   return {
@@ -204,7 +189,7 @@ export function getMilestoneProgress(milestone: Milestone): {
 
 // ===== FACTS =====
 
-export function getAllFacts(): Fact[] {
+export async function getAllFacts(): Promise<Fact[]> {
   const factsDir = path.join(WORKSPACE_PATH, 'memory', 'facts');
   const files = listFiles(factsDir, '.json');
   
@@ -219,61 +204,16 @@ export function getAllFacts(): Fact[] {
   );
 }
 
-export function getFactsByProject(projectId: string): Fact[] {
-  return getAllFacts().filter(f => 
-    f.projectRef === `projects/${projectId}`
-  );
-}
-
-export function getUniversalFacts(): Fact[] {
-  return getAllFacts().filter(f => f.universal);
-}
-
 // ===== GRAPH =====
 
-export function getGraphData(): GraphData | null {
+export async function getGraphData(): Promise<GraphData | null> {
   const graphPath = path.join(WORKSPACE_PATH, '.openclaw', 'graph.json');
   return readJSON<GraphData>(graphPath);
 }
 
-// ===== DAILY NOTES =====
-
-export function getDailyNotes(): DailyNote[] {
-  const dailyDir = path.join(WORKSPACE_PATH, 'memory', 'daily');
-  const files = listFiles(dailyDir, '.md');
-  
-  return files.map(file => {
-    const date = file.replace('.md', '');
-    const filePath = path.join(dailyDir, file);
-    const content = fs.readFileSync(filePath, 'utf-8');
-    
-    return {
-      date,
-      content,
-      path: filePath,
-    };
-  }).sort((a, b) => b.date.localeCompare(a.date));
-}
-
-export function getDailyNote(date: string): DailyNote | null {
-  const filePath = path.join(WORKSPACE_PATH, 'memory', 'daily', `${date}.md`);
-  if (!fs.existsSync(filePath)) return null;
-  
-  return {
-    date,
-    content: fs.readFileSync(filePath, 'utf-8'),
-    path: filePath,
-  };
-}
-
-export function getTodayNote(): DailyNote | null {
-  const today = new Date().toISOString().split('T')[0];
-  return getDailyNote(today);
-}
-
 // ===== STATS =====
 
-export function getDashboardStats(): {
+export async function getDashboardStats(): Promise<{
   tasks: {
     total: number;
     completed: number;
@@ -293,10 +233,10 @@ export function getDashboardStats(): {
     total: number;
     universal: number;
   };
-} {
-  const tasks = getAllTasks();
-  const projects = getAllProjects();
-  const facts = getAllFacts();
+}> {
+  const tasks = await getAllTasks();
+  const projects = await getAllProjects();
+  const facts = await getAllFacts();
   const today = new Date().toISOString().split('T')[0];
   
   return {
@@ -324,53 +264,51 @@ export function getDashboardStats(): {
 
 // ===== WRITE OPERATIONS =====
 
-export function saveTask(task: Task): void {
+export async function saveTask(task: Task): Promise<void> {
+  'use server';
   const taskPath = path.join(WORKSPACE_PATH, 'tasks', `${task.id}.json`);
   task.updatedAt = new Date().toISOString();
   fs.writeFileSync(taskPath, JSON.stringify(task, null, 2));
 }
 
-export function updateTaskStatus(taskId: string, status: Task['status']): Task | null {
-  const task = getTaskById(taskId);
+export async function updateTaskStatus(taskId: string, status: Task['status']): Promise<Task | null> {
+  'use server';
+  const task = await getTaskById(taskId);
   if (!task) return null;
   
   task.status = status;
   task.updatedAt = new Date().toISOString();
-  saveTask(task);
+  await saveTask(task);
   
   return task;
 }
 
-export function assignTask(taskId: string, agentId: string | null): Task | null {
-  const task = getTaskById(taskId);
+export async function assignTask(taskId: string, agentId: string | null): Promise<Task | null> {
+  'use server';
+  const task = await getTaskById(taskId);
   if (!task) return null;
   
   task.assignedTo = agentId;
   task.updatedAt = new Date().toISOString();
-  saveTask(task);
+  await saveTask(task);
   
   return task;
 }
 
-export function updateTaskPriority(taskId: string, priority: Task['priority']): Task | null {
-  const task = getTaskById(taskId);
+export async function updateTaskPriority(taskId: string, priority: Task['priority']): Promise<Task | null> {
+  'use server';
+  const task = await getTaskById(taskId);
   if (!task) return null;
   
   task.priority = priority;
   task.updatedAt = new Date().toISOString();
-  saveTask(task);
+  await saveTask(task);
   
   return task;
 }
 
-export function saveProject(project: Project): void {
-  const metaPath = path.join(WORKSPACE_PATH, 'life', 'areas', 'projects', project.id, 'meta.json');
-  project.updatedAt = new Date().toISOString();
-  fs.writeFileSync(metaPath, JSON.stringify(project, null, 2));
-}
-
 // Ensure workspace structure exists
-export function ensureWorkspaceStructure(): void {
+export async function ensureWorkspaceStructure(): Promise<void> {
   const dirs = [
     path.join(WORKSPACE_PATH, 'tasks'),
     path.join(WORKSPACE_PATH, 'memory', 'daily'),
