@@ -1,0 +1,109 @@
+#!/bin/bash
+#
+# LifeOS Core — Main CLI Entry Point
+# Usage: lifeos [command] [options]
+#
+
+set -euo pipefail
+
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIFEOS_VERSION="0.1.0"
+
+# Source common functions
+source "$SCRIPT_DIR/lib/common.sh"
+
+# Show help
+show_help() {
+    cat << 'EOF'
+LifeOS Core — AI Life Organization System
+Version: 0.1.0 | Philosophy: Organize with consent
+
+USAGE:
+    lifeos [COMMAND] [OPTIONS]
+
+COMMANDS:
+    analyze [path]       Scan workspace and generate analysis report
+                         Options: --verbose, --output <file>
+    
+    organize [path]      Suggest and apply organization (with consent)
+                         Options: --apply, --force, --dry-run (default)
+    
+    status [path]        Show current organization state
+                         Options: --verbose
+    
+    rollback <timestamp> Rollback changes from a specific timestamp
+    
+    dashboard            Launch the LifeOS dashboard (Phase 2)
+    
+    help                 Show this help message
+    version              Show version information
+
+EXAMPLES:
+    lifeos analyze                    # Analyze current directory
+    lifeos analyze ~/workspace        # Analyze specific path
+    lifeos analyze --verbose          # Detailed output
+    lifeos organize --apply           # Organize with consent prompts
+    lifeos organize --force           # Batch apply all suggestions
+    lifeos status                     # Quick status overview
+    lifeos status --verbose           # Detailed status
+
+SAFETY:
+    - analyze is always read-only (safe)
+    - organize defaults to dry-run (preview only)
+    - --apply asks for consent on each change
+    - --force applies all after single confirmation
+    - Backups created before any modifications
+    - Rollback available via: lifeos rollback <timestamp>
+
+CONFIG:
+    LifeOS stores metadata in .lifeos/ directories within your workspace.
+    Backups are stored in .lifeos/backups/<timestamp>/
+    Change log: .lifeos/changes.log
+
+For more information: https://github.com/7d-codes/lifeos-core
+EOF
+}
+
+# Show version
+show_version() {
+    echo "LifeOS Core v$LIFEOS_VERSION"
+    echo "MIT License | github.com/7d-codes/lifeos-core"
+}
+
+# Parse command
+COMMAND="${1:-help}"
+shift || true
+
+case "$COMMAND" in
+    analyze|a)
+        exec "$SCRIPT_DIR/analyze.sh" "$@"
+        ;;
+    organize|o)
+        exec "$SCRIPT_DIR/organize.sh" "$@"
+        ;;
+    status|s)
+        exec "$SCRIPT_DIR/status.sh" "$@"
+        ;;
+    rollback|r)
+        exec "$SCRIPT_DIR/rollback.sh" "$@"
+        ;;
+    dashboard|d)
+        echo "Dashboard coming in Phase 2..."
+        echo "For now, use: cd $SCRIPT_DIR/../dashboard && npm run dev"
+        exit 0
+        ;;
+    help|-h|--help)
+        show_help
+        exit 0
+        ;;
+    version|-v|--version)
+        show_version
+        exit 0
+        ;;
+    *)
+        echo "Unknown command: $COMMAND"
+        echo "Run 'lifeos help' for usage information."
+        exit 1
+        ;;
+esac

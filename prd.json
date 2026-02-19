@@ -1,0 +1,217 @@
+{
+  "version": "1.0",
+  "project": "LifeOS Core",
+  "description": "Open-source AI life organization system for OpenClaw",
+  "license": "MIT",
+  "status": "Phase 1 In Progress",
+  "lastUpdated": "2026-02-20",
+  "repository": "https://github.com/7d-codes/lifeos-core",
+  "stories": [
+    {
+      "id": "LC-001",
+      "title": "Skill CLI Framework",
+      "description": "Create unified CLI entry point with command routing",
+      "acceptance": [
+        "Main lifeos CLI entry point",
+        "Command routing (analyze, organize, status, rollback)",
+        "Help text and version info",
+        "Error handling for unknown commands"
+      ],
+      "status": "completed",
+      "priority": "high",
+      "phase": "1",
+      "deliverables": [
+        "skill/lifeos",
+        "skill/lib/common.sh"
+      ]
+    },
+    {
+      "id": "LC-002",
+      "title": "Workspace Analyzer",
+      "description": "Scan workspace and generate analysis report",
+      "acceptance": [
+        "Scan all files (respect .gitignore)",
+        "Categorize files by type",
+        "Count daily notes, projects, orphaned files",
+        "Generate JSON report",
+        "Support --verbose flag"
+      ],
+      "status": "completed",
+      "priority": "high",
+      "phase": "1",
+      "deliverables": [
+        "skill/analyze.sh"
+      ]
+    },
+    {
+      "id": "LC-003",
+      "title": "Consent-Based Organization",
+      "description": "Suggest and apply organization with user consent",
+      "acceptance": [
+        "Read analysis report",
+        "Suggest categorization for orphaned files",
+        "Ask for consent (--apply mode)",
+        "Batch mode (--force flag)",
+        "Create backups before changes",
+        "Log all changes"
+      ],
+      "status": "completed",
+      "priority": "high",
+      "phase": "1",
+      "deliverables": [
+        "skill/organize.sh"
+      ]
+    },
+    {
+      "id": "LC-004",
+      "title": "Status Display",
+      "description": "Show current organization state",
+      "acceptance": [
+        "Display quick stats",
+        "Show recent changes from log",
+        "List available backups",
+        "Daily note health check",
+        "Recommendations based on state"
+      ],
+      "status": "completed",
+      "priority": "high",
+      "phase": "1",
+      "deliverables": [
+        "skill/status.sh",
+        "skill/rollback.sh"
+      ]
+    },
+    {
+      "id": "LC-005",
+      "title": "Dashboard Scaffold",
+      "description": "Set up Next.js dashboard project structure",
+      "acceptance": [
+        "Next.js 15 + TypeScript setup",
+        "shadcn/ui components",
+        "Dark mode support",
+        "Basic layout (sidebar + main)",
+        "Project structure matching LifeOS philosophy"
+      ],
+      "status": "todo",
+      "priority": "high",
+      "phase": "2"
+    },
+    {
+      "id": "LC-006",
+      "title": "Dashboard: Projects View",
+      "description": "Display projects from metadata",
+      "acceptance": [
+        "Read .lifeos/metadata.json files",
+        "Show project cards with status",
+        "Filter by status (active, archived)",
+        "Click to view project details",
+        "Quick actions (edit status, add note)"
+      ],
+      "status": "todo",
+      "priority": "high",
+      "phase": "2"
+    },
+    {
+      "id": "LC-007",
+      "title": "Dashboard: Kanban Board",
+      "description": "Visual kanban from project metadata",
+      "acceptance": [
+        "Columns: Backlog, In Progress, Done",
+        "Cards from project metadata",
+        "Drag to change status",
+        "Create new cards",
+        "Persist to metadata files"
+      ],
+      "status": "todo",
+      "priority": "medium",
+      "phase": "2"
+    },
+    {
+      "id": "LC-008",
+      "title": "Dashboard: To-Do List",
+      "description": "Task list from daily notes + metadata",
+      "acceptance": [
+        "Parse tasks from daily notes",
+        "Checkbox support",
+        "Filter by date/project",
+        "Create new tasks",
+        "Mark complete (updates source)"
+      ],
+      "status": "todo",
+      "priority": "medium",
+      "phase": "2"
+    },
+    {
+      "id": "LC-009",
+      "title": "WebSocket Bridge",
+      "description": "Bridge between dashboard and OpenClaw",
+      "acceptance": [
+        "WebSocket server",
+        "Forward messages to OpenClaw",
+        "Receive responses",
+        "Connection management",
+        "Error handling"
+      ],
+      "status": "todo",
+      "priority": "medium",
+      "phase": "3"
+    },
+    {
+      "id": "LC-010",
+      "title": "Dashboard: Chat Integration",
+      "description": "Chat with OpenClaw through dashboard",
+      "acceptance": [
+        "Chat UI in dashboard",
+        "Send messages via WebSocket bridge",
+        "Display responses",
+        "Session history",
+        "Message input with submit"
+      ],
+      "status": "todo",
+      "priority": "medium",
+      "phase": "3"
+    },
+    {
+      "id": "LC-011",
+      "title": "Memory Search",
+      "description": "Search through all notes and knowledge",
+      "acceptance": [
+        "Full-text search",
+        "Filter by type (daily, project, knowledge)",
+        "Highlight matches",
+        "Quick preview",
+        "Jump to file"
+      ],
+      "status": "todo",
+      "priority": "low",
+      "phase": "3"
+    },
+    {
+      "id": "LC-012",
+      "title": "OpenClaw Skill Package",
+      "description": "Package as installable OpenClaw skill",
+      "acceptance": [
+        "skill.yaml manifest",
+        "Installation script",
+        "Integration with OpenClaw CLI",
+        "Documentation",
+        "GitHub release"
+      ],
+      "status": "todo",
+      "priority": "low",
+      "phase": "4"
+    }
+  ],
+  "stats": {
+    "totalStories": 12,
+    "completed": 4,
+    "inProgress": 0,
+    "todo": 8,
+    "phasesComplete": "1/4"
+  },
+  "notes": [
+    "Phase 1 (Core Skill) completed overnight 2026-02-20",
+    "4/12 stories done - CLI tools ready for immediate use",
+    "Next: Phase 2 Dashboard (LC-005 through LC-008)"
+  ]
+}
